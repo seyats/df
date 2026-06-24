@@ -1,0 +1,22 @@
+# Build artifacts
+build/
+DerivedData/
+
+# Swift Package Manager
+.build/
+.swiftpm/
+Package.resolved
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Xcode user state
+*.xcuserstate
+*.xcuserdatad/
+xcuserdata/
+
+# Rork
+.rork/
+.env
