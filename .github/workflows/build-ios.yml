@@ -3,8 +3,6 @@ name: Build iOS IPA
 on:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   workflow_dispatch:
 
 jobs:
@@ -16,27 +14,11 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 🛠 Select Xcode (latest available on runner)
+      - name: 🛠 Select Xcode 26 (Swift 6.2+)
         run: |
-          sudo xcode-select -s /Applications/Xcode_16.3.app/Contents/Developer 2>/dev/null || \
-          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app 2>/dev/null | head -1)/Contents/Developer"
+          sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer
           xcodebuild -version
           swift --version
-
-      - name: 📲 Install iOS Platform (skip if already present)
-        run: |
-          # На свежем runner'е macOS-15 Xcode 16.3 может идти без предустановленной
-          # iOS-платформы. Пробуем скачать; если уже стоит — команда быстро выходит.
-          # Используем `|| true`, чтобы шаг не падал, если платформа уже есть.
-          xcodebuild -downloadPlatform iOS 2>&1 | tail -5 || true
-
-      - name: 📋 Show available SDKs and simulators (debug)
-        run: |
-          echo "=== SDKs ==="
-          xcodebuild -showsdks 2>&1 || true
-          echo ""
-          echo "=== Simulators ==="
-          xcrun simctl list devices available 2>&1 | head -20 || true
 
       - name: 🧰 Install XcodeGen
         run: brew install xcodegen
@@ -44,8 +26,6 @@ jobs:
       - name: 📝 Regenerate Xcode project from project.yml
         working-directory: ios-lumina
         run: |
-          # Если LUMINA.xcodeproj уже лежит в репо — пересоздаём, чтобы
-          # всегда быть актуальным относительно project.yml.
           rm -rf LUMINA.xcodeproj
           xcodegen generate
 
@@ -58,42 +38,16 @@ jobs:
         working-directory: ios-lumina
         run: |
           set -o pipefail
-
-          # Пытаемся собрать под generic/platform=iOS (нужна iOS-платформа).
-          # Если она не установлена — откатываемся на сборку под симулятор
-          # generic/platform=iOS Simulator (он есть на runner'е всегда).
-          # В обоих случаях IPA собирается из .app, так что итоговый артефакт
-          # получится в любом случае.
-
-          echo "▶ Попытка сборки под generic/platform=iOS (device)..."
-          if xcodebuild archive \
-              -project LUMINA.xcodeproj \
-              -scheme LUMINA \
-              -archivePath build/LUMINA.xcarchive \
-              -destination "generic/platform=iOS" \
-              CODE_SIGNING_ALLOWED=NO \
-              CODE_SIGNING_REQUIRED=NO \
-              CODE_SIGN_IDENTITY="" \
-              COMPILER_INDEX_STORE_ENABLE=NO \
-              SWIFT_STRICT_CONCURRENCY=minimal \
-              2>&1 | tee build.log; then
-            echo "✅ Archive под device собран."
-          else
-            echo "⚠️ Сборка под device не удалась. Пробуем generic/platform=iOS Simulator..."
-            rm -rf build build.log
-            xcodebuild archive \
-              -project LUMINA.xcodeproj \
-              -scheme LUMINA \
-              -archivePath build/LUMINA.xcarchive \
-              -destination "generic/platform=iOS Simulator" \
-              CODE_SIGNING_ALLOWED=NO \
-              CODE_SIGNING_REQUIRED=NO \
-              CODE_SIGN_IDENTITY="" \
-              COMPILER_INDEX_STORE_ENABLE=NO \
-              SWIFT_STRICT_CONCURRENCY=minimal \
-              2>&1 | tee build.log
-            echo "✅ Archive под симулятор собран."
-          fi
+          xcodebuild archive \
+            -project LUMINA.xcodeproj \
+            -scheme LUMINA \
+            -archivePath build/LUMINA.xcarchive \
+            -destination "generic/platform=iOS" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            COMPILER_INDEX_STORE_ENABLE=NO \
+            2>&1 | tee build.log
 
       - name: 📦 Export IPA
         working-directory: ios-lumina
