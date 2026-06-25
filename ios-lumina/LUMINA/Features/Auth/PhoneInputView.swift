@@ -177,6 +177,6 @@ struct CountryPickerView: View {
         countryCode: .constant("+7"),
         isLoading: .constant(false),
         onContinue: {},
-        errorMessage: .constant(nil)
+        errorMessage: nil
     )
 }

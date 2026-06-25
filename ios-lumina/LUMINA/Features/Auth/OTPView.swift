@@ -165,25 +165,7 @@ struct OTPCell: View {
                 RoundedRectangle(cornerRadius: 12)
                     .stroke(isActive ? LuminaColor.accentBlue : Color.gray.opacity(0.3), lineWidth: isActive ? 2 : 1)
             )
-            .ifAvailable(iOS: 26) { view in
-                if #available(iOS 26.0, *) {
-                    view.glassEffect(.regular, in: RoundedRectangle(cornerRadius: 12))
-                } else {
-                    view
-                }
-            }
-    }
-}
-
-// MARK: - Условный модификатор
-extension View {
-    @ViewBuilder
-    func ifAvailable<Content: View>(iOS version: Int, @ViewBuilder transform: (Self) -> Content) -> some View {
-        if #available(iOS 26, *) {
-            transform(self)
-        } else {
-            self
-        }
+            // glassEffect removed for iOS 17 compatibility
     }
 }
 
