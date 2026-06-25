@@ -41,9 +41,28 @@ actor LocalBackend {
     private init() {
         let docs = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         fileURL = docs.appendingPathComponent("lumina_local_backend.json")
-        load()
-        seedDemoDataIfNeeded()
-        ensureDurovCredentials()
+        // Direct calls to avoid Swift 6 actor isolation warnings in strict mode (Xcode 26+)
+        if FileManager.default.fileExists(atPath: fileURL.path),
+           let data = try? Data(contentsOf: fileURL),
+           let decoded = try? decoder.decode(Store.self, from: data) {
+            store = decoded
+        }
+        // Seed demo data if needed (inline minimal version for safety)
+        if store.users.isEmpty {
+            let durov = UserModel(id: "durov", phone: "+70000000001", fullName: "Pavel Durov", username: "durov", bio: "Официальный аккаунт LUMINA", isVerified: true, isOnline: true, isAdmin: true)
+            let support = UserModel(id: "support", phone: "+70000000002", fullName: "LUMINA Support", username: "support", bio: "Поддержка пользователей", isVerified: true)
+            let demo = UserModel(id: "demo", phone: "+70000000003", fullName: "Demo User", username: "demo", bio: "Демо-аккаунт для тестов")
+            store.users = [durov, support, demo]
+            store.usernameByLowercase = ["durov": "durov", "support": "support", "demo": "demo"]
+            store.phoneByUserID = ["durov": "+70000000001", "support": "+70000000002", "demo": "+70000000003"]
+            store.passwordByUserID["durov"] = sha256(Constants.officialAccountPassword)
+            save()
+        }
+        // Ensure durov password
+        if store.users.contains(where: { $0.id == "durov" }) && store.passwordByUserID["durov"] == nil {
+            store.passwordByUserID["durov"] = sha256(Constants.officialAccountPassword)
+            save()
+        }
     }
 
     private func ensureDurovCredentials() {
