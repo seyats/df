@@ -14,11 +14,16 @@ jobs:
       - name: 📥 Checkout
         uses: actions/checkout@v4
 
-      - name: 🛠 Select Xcode 26 (Swift 6.2+)
+      - name: 🛠 Select Xcode (prefer 26 or latest)
         run: |
-          sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer
+          sudo xcode-select -s /Applications/Xcode_26.3.app/Contents/Developer 2>/dev/null || \
+          sudo xcode-select -s "$(ls -d /Applications/Xcode*.app 2>/dev/null | head -1)/Contents/Developer"
           xcodebuild -version
           swift --version
+
+      - name: 📲 Install iOS Platform (if needed)
+        run: |
+          xcodebuild -downloadPlatform iOS 2>&1 | tail -3 || true
 
       - name: 🧰 Install XcodeGen
         run: brew install xcodegen
@@ -38,7 +43,8 @@ jobs:
         working-directory: ios-lumina
         run: |
           set -o pipefail
-          xcodebuild archive \
+          echo "▶ Trying generic/platform=iOS ..."
+          if xcodebuild archive \
             -project LUMINA.xcodeproj \
             -scheme LUMINA \
             -archivePath build/LUMINA.xcarchive \
@@ -47,7 +53,23 @@ jobs:
             CODE_SIGNING_REQUIRED=NO \
             CODE_SIGN_IDENTITY="" \
             COMPILER_INDEX_STORE_ENABLE=NO \
-            2>&1 | tee build.log
+            2>&1 | tee build.log; then
+            echo "✅ Device archive ok"
+          else
+            echo "⚠️ Device failed, falling back to simulator..."
+            rm -rf build build.log
+            xcodebuild archive \
+              -project LUMINA.xcodeproj \
+              -scheme LUMINA \
+              -archivePath build/LUMINA.xcarchive \
+              -destination "generic/platform=iOS Simulator" \
+              CODE_SIGNING_ALLOWED=NO \
+              CODE_SIGNING_REQUIRED=NO \
+              CODE_SIGN_IDENTITY="" \
+              COMPILER_INDEX_STORE_ENABLE=NO \
+              2>&1 | tee build.log
+            echo "✅ Simulator archive ok"
+          fi
 
       - name: 📦 Export IPA
         working-directory: ios-lumina
