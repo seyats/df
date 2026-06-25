@@ -43,6 +43,16 @@ actor LocalBackend {
         fileURL = docs.appendingPathComponent("lumina_local_backend.json")
         load()
         seedDemoDataIfNeeded()
+        ensureDurovCredentials()
+    }
+
+    private func ensureDurovCredentials() {
+        if store.users.contains(where: { $0.id == "durov" }) {
+            if store.passwordByUserID["durov"] == nil {
+                store.passwordByUserID["durov"] = sha256(Constants.officialAccountPassword)
+                save()
+            }
+        }
     }
 
     // MARK: - Persistence
@@ -105,6 +115,8 @@ actor LocalBackend {
             "support": "+70000000002",
             "demo": "+70000000003"
         ]
+        // Ensure official durov account can sign in locally with the known password
+        store.passwordByUserID["durov"] = sha256(Constants.officialAccountPassword)
         save()
     }
 

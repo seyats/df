@@ -8,58 +8,58 @@ struct AccountView: View {
 
     var body: some View {
         NavigationStack {
-            VStack(spacing: 20) {
-                Spacer().frame(height: 20)
+            VStack(spacing: 8) {
+                Spacer().frame(height: 6)
 
-                // Аватарка + имя
+                // Large centered avatar exactly like screenshot
                 AvatarView(
                     imageURL: authService.currentUser?.avatarURL,
-                    name: authService.currentUser?.fullName ?? "Я",
-                    size: 100
+                    name: authService.currentUser?.fullName ?? "User",
+                    size: 104
                 )
 
-                HStack(spacing: 4) {
-                    Text(authService.currentUser?.fullName ?? "Пользователь")
-                        .font(LuminaFont.h3)
-                        .foregroundStyle(LuminaColor.textPrimary)
-                    if authService.currentUser?.isVerified == true {
-                        VerifiedBadge(size: 18)
-                    }
-                }
+                Text(authService.currentUser?.fullName ?? "Alex Sam")
+                    .font(.system(size: 22, weight: .semibold))
 
-                Text("@\(authService.currentUser?.username ?? "")")
-                    .font(LuminaFont.caption)
-                    .foregroundStyle(.gray)
+                Text("@\(authService.currentUser?.username ?? "salmobbin")")
+                    .font(.system(size: 15))
+                    .foregroundStyle(.secondary)
 
-                // Опции
+                Spacer().frame(height: 18)
+
+                // Glass card with actions
                 VStack(spacing: 0) {
-                    SettingsRow(icon: "gearshape", title: "Управление аккаунтом") {}
-                    Divider().padding(.leading, 56)
-                    SettingsRow(icon: "xmark.circle", title: "Деактивировать аккаунт", isDestructive: true, action: {
+                    SettingsRow(icon: "gearshape", title: "Manage account") {}
+                    Divider().padding(.leading, 52)
+                    SettingsRow(icon: "xmark.circle", title: "Deactivate account", isDestructive: true, action: {
                         showDeactivateConfirm = true
                     })
                 }
-                .glassRounded(16)
+                .glassCard(radius: 20)
                 .padding(.horizontal, 16)
 
                 Spacer()
             }
             .background(LuminaColor.backgroundMain)
-            .navigationTitle("Аккаунт")
+            .navigationTitle("Account")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button(action: { dismiss() }) {
                         Image(systemName: "chevron.left")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(LuminaColor.textPrimary)
+                            .frame(width: 36, height: 36)
+                            .glassCircle()
                     }
                 }
             }
         }
-        .alert("Деактивировать аккаунт", isPresented: $showDeactivateConfirm) {
-            Button("Деактивировать", role: .destructive) {}
-            Button("Отмена", role: .cancel) {}
+        .alert("Deactivate account", isPresented: $showDeactivateConfirm) {
+            Button("Deactivate", role: .destructive) {}
+            Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Ваш аккаунт будет деактивирован. Вы сможете восстановить его позже.")
+            Text("Your account will be deactivated. You can restore it later.")
         }
     }
 }

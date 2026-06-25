@@ -14,35 +14,47 @@ struct ChatListView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
-                // Хедер
+                // Хедер — как на референсе (жидкое стекло) + X badge
                 HStack {
-                    // Аватарка профиля
+                    // Левая аватарка
                     Button(action: { showProfile = true }) {
                         AvatarView(
                             imageURL: authService.currentUser?.avatarURL,
                             name: authService.currentUser?.fullName ?? "Я",
-                            size: 44
+                            size: 34
                         )
                     }
 
                     Spacer()
 
-                    Text("Чаты")
-                        .font(LuminaFont.h3)
+                    Text("Chat")
+                        .font(.system(size: 20, weight: .semibold))
                         .foregroundStyle(LuminaColor.textPrimary)
 
                     Spacer()
 
-                    Button(action: { showNewChat = true }) {
-                        Image(systemName: "pencil")
-                            .font(.system(size: 20))
-                            .foregroundStyle(LuminaColor.textPrimary)
+                    // X with red badge (exact to screenshot)
+                    Button(action: { /* X actions / notifications */ }) {
+                        ZStack(alignment: .topTrailing) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 19, weight: .bold))
+                                .foregroundStyle(LuminaColor.textPrimary)
+                                .frame(width: 34, height: 34)
+                                .glassCircle(interactive: true)
+
+                            Text("1")
+                                .font(.system(size: 9, weight: .bold))
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 4)
+                                .padding(.vertical, 0)
+                                .background(Color.red, in: Capsule())
+                                .offset(x: 4, y: -3)
+                        }
                     }
-                    .glassCircle(interactive: true)
-                    .frame(width: 44, height: 44)
                 }
                 .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .padding(.vertical, 6)
+                .glassToolbar()
 
                 if allChats.isEmpty {
                     emptyState

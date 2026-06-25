@@ -184,7 +184,8 @@ struct ChatDetailView: View {
                     .font(.system(size: 20, weight: .medium))
                     .foregroundStyle(LuminaColor.textPrimary)
             }
-            .frame(width: 44, height: 44)
+            .frame(width: 36, height: 36)
+            .glassCircle(interactive: true)
 
             Button(action: {
                 if chatName.contains("Группа") {

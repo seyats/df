@@ -159,15 +159,19 @@ struct SettingsRow: View {
     var action: (() -> Void)? = nil
 
     var body: some View {
-        Button(action: { if !isToggle { action?() } }) {
+        Button {
+            if !isToggle {
+                action?()
+            }
+        } label: {
             HStack(spacing: 14) {
                 Image(systemName: icon)
-                    .font(.system(size: 22))
+                    .font(.system(size: 18))
                     .foregroundStyle(LuminaColor.textPrimary)
-                    .frame(width: 28)
+                    .frame(width: 24)
 
                 Text(title)
-                    .font(.system(size: 18))
+                    .font(.system(size: 17))
                     .foregroundStyle(LuminaColor.textPrimary)
 
                 Spacer()
@@ -181,16 +185,16 @@ struct SettingsRow: View {
                         .font(LuminaFont.body)
                         .foregroundStyle(.gray)
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 14))
+                        .font(.system(size: 13))
                         .foregroundStyle(.gray)
                 } else {
                     Image(systemName: "chevron.right")
-                        .font(.system(size: 14))
+                        .font(.system(size: 13))
                         .foregroundStyle(.gray)
                 }
             }
             .padding(.horizontal, 16)
-            .frame(height: 56)
+            .frame(height: 52)
         }
     }
 }

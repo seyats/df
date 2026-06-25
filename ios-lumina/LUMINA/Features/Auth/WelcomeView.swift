@@ -214,6 +214,20 @@ struct UsernameSignInView: View {
             .padding(.horizontal, 16)
             .buttonAnimation()
 
+            // Быстрый вход durov для локального режима
+            if Constants.useLocalBackend {
+                Button {
+                    loginUsername = "durov"
+                    loginPassword = Constants.officialAccountPassword
+                    signIn()
+                } label: {
+                    Text("Войти как @durov (demo)")
+                        .font(LuminaFont.caption)
+                        .foregroundStyle(LuminaColor.accentBlue)
+                }
+                .padding(.top, 8)
+            }
+
             Spacer()
         }
         .background(LuminaColor.backgroundMain)

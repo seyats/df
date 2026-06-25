@@ -6,167 +6,166 @@ struct SettingsView: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showSignOutConfirm = false
     @State private var showAdminPanel = false
+    @State private var showAccount = false
+    @State private var showAppearance = false
+    @State private var showInteractions = false
 
     var body: some View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 0) {
-                    // Профиль
-                    profileSection
-
-                    // Раздел «Приложение»
-                    sectionHeader("Приложение")
-                    settingsCard {
-                        SettingsRow(icon: "paintbrush", title: "Оформление") {}
-                        Divider().padding(.leading, 56)
-                        SettingsRow(icon: "app.gift", title: "Иконка приложения") {}
-                        Divider().padding(.leading, 56)
-                        SettingsRow(icon: "bell", title: "Уведомления") {}
-                        Divider().padding(.leading, 56)
-                        SettingsRow(icon: "hand.point.up.left", title: "Жесты") {}
-                    }
-
-                    // Раздел «LUMINA»
-                    sectionHeader("LUMINA")
-                    settingsCard {
-                        SettingsRow(icon: "tray", title: "Запросы сообщений") {}
-                        Divider().padding(.leading, 56)
-                        SettingsRow(icon: "key", title: "Сменить PIN-код") {}
-                    }
-
-                    // Раздел «Данные и Информация»
-                    sectionHeader("Данные и Информация")
-                    settingsCard {
-                        SettingsRow(icon: "cylinder", title: "Хранилище") {}
-                        Divider().padding(.leading, 56)
-                        SettingsRow(icon: "chart.pie", title: "Использование данных") {}
-                    }
-
-                    // Раздел «Поддержка»
-                    sectionHeader("Поддержка")
-                    settingsCard {
-                        SettingsRow(icon: "questionmark.circle", title: "Помощь") {}
-                        Divider().padding(.leading, 56)
-                        SettingsRow(icon: "doc.text", title: "Правовая информация") {}
-                        Divider().padding(.leading, 56)
-                        SettingsRow(icon: "wrench", title: "Устранение неполадок") {}
-                    }
-
-                    // Админ-панель (только для durov)
-                    if isDurov {
-                        sectionHeader("Управление платформой")
-                        settingsCard {
-                            SettingsRow(icon: "shield.checkerboard", title: "Обзор системы") {
-                                showAdminPanel = true
-                            }
-                            Divider().padding(.leading, 56)
-                            SettingsRow(icon: "person.2.fill", title: "Все пользователи") {
-                                showAdminPanel = true
-                            }
-                            Divider().padding(.leading, 56)
-                            SettingsRow(icon: "bubble.left.and.bubble.right.fill", title: "Активные чаты") {
-                                showAdminPanel = true
-                            }
-                            Divider().padding(.leading, 56)
-                            SettingsRow(icon: "flag", title: "Жалобы и модерация") {
-                                showAdminPanel = true
-                            }
-                            Divider().padding(.leading, 56)
-                            SettingsRow(icon: "lock.shield.fill", title: "Безопасность") {
-                                showAdminPanel = true
-                            }
-                            Divider().padding(.leading, 56)
-                            SettingsRow(icon: "gearshape.2.fill", title: "Настройки платформы") {
-                                showAdminPanel = true
-                            }
-                            Divider().padding(.leading, 56)
-                            SettingsRow(icon: "doc.text.magnifyingglass", title: "Логи и мониторинг") {
-                                showAdminPanel = true
-                            }
-                            Divider().padding(.leading, 56)
-                            SettingsRow(icon: "chart.line.uptrend.xyaxis", title: "Аналитика") {
-                                showAdminPanel = true
-                            }
-                            Divider().padding(.leading, 56)
-                            SettingsRow(icon: "megaphone.fill", title: "Массовое уведомление") {
-                                showAdminPanel = true
-                            }
-                            Divider().padding(.leading, 56)
-                            SettingsRow(icon: "square.and.arrow.up", title: "Экспорт данных") {
-                                showAdminPanel = true
-                            }
+                    // Top X close + title (exact match)
+                    HStack {
+                        Button(action: { dismiss() }) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 18, weight: .semibold))
+                                .frame(width: 34, height: 34)
+                                .glassCircle()
                         }
+                        Spacer()
+                        Text("Settings")
+                            .font(.system(size: 20, weight: .semibold))
+                        Spacer()
+                        Color.clear.frame(width: 34, height: 34)
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
+                    .padding(.bottom, 14)
+
+                    // Profile card at top (tappable to Account) - exact match to screenshots
+                    Button {
+                        showAccount = true
+                    } label: {
+                        HStack(spacing: 14) {
+                            AvatarView(
+                                imageURL: authService.currentUser?.avatarURL,
+                                name: authService.currentUser?.fullName ?? "User",
+                                size: 46
+                            )
+
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text(authService.currentUser?.fullName ?? "Alex Smith")
+                                    .font(.system(size: 17, weight: .semibold))
+                                    .foregroundStyle(LuminaColor.textPrimary)
+                                Text("@\(authService.currentUser?.username ?? "alexsmithmobb")")
+                                    .font(.system(size: 14))
+                                    .foregroundStyle(.secondary)
+                            }
+
+                            Spacer()
+
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 10)
+                        .glassCard(radius: 16)
+                    }
+                    .buttonStyle(.plain)
+                    .padding(.horizontal, 16)
+                    .padding(.bottom, 14)
+
+                    // App section
+                    sectionHeader("App")
+                    settingsCard {
+                        SettingsRow(icon: "moon.circle.fill", title: "Appearance", action: { showAppearance = true })
+                        Divider().padding(.leading, 52)
+                        SettingsRow(icon: "photo.on.rectangle", title: "App Icon", action: { })
+                        Divider().padding(.leading, 52)
+                        SettingsRow(icon: "bell", title: "Notifications", action: { })
+                        Divider().padding(.leading, 52)
+                        SettingsRow(icon: "link", title: "Interactions", action: { showInteractions = true })
                     }
 
-                    // Выход
+                    // XChat section
+                    sectionHeader("XChat")
+                    settingsCard {
+                        SettingsRow(icon: "tray", title: "Message Requests") {}
+                        Divider().padding(.leading, 52)
+                        SettingsRow(icon: "key", title: "Change Passcode") {}
+                    }
+
+                    // Data & Information
+                    sectionHeader("Data & Information")
+                    settingsCard {
+                        SettingsRow(icon: "externaldrive", title: "Storage") {}
+                        Divider().padding(.leading, 52)
+                        SettingsRow(icon: "chart.pie.fill", title: "Data Usage") {}
+                    }
+
+                    // Help, Legal, Troubleshooting
+                    sectionHeader("Help")
+                    settingsCard {
+                        SettingsRow(icon: "questionmark.circle", title: "Help") {}
+                    }
+
+                    sectionHeader("Legal")
+                    settingsCard {
+                        SettingsRow(icon: "doc.text", title: "Legal") {}
+                    }
+
+                    sectionHeader("Troubleshooting")
+                    settingsCard {
+                        SettingsRow(icon: "wrench", title: "Troubleshooting") {}
+                    }
+
+                    // Red Sign Out (matches screenshots)
                     Button(action: { showSignOutConfirm = true }) {
-                        HStack(spacing: 12) {
+                        HStack(spacing: 10) {
                             Image(systemName: "arrow.right.square")
-                                .font(.system(size: 22))
-                            Text("Выйти")
-                                .font(.system(size: 18))
+                                .font(.system(size: 19))
+                            Text("Sign Out")
+                                .font(.system(size: 17))
                         }
                         .foregroundStyle(.red)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 14)
                     }
-                    .padding(.top, 20)
+                    .glassCard(radius: 18)
+                    .padding(.horizontal, 16)
+                    .padding(.top, 10)
 
-                    Text("Версия \(Constants.appVersion)")
-                        .font(LuminaFont.micro)
-                        .foregroundStyle(.gray)
-                        .padding(.top, 12)
+                    Text("Version \(Constants.appVersion)")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .padding(.top, 14)
                         .padding(.bottom, 30)
-                }
-            }
-            .background(LuminaColor.backgroundMain)
-            .navigationTitle("Настройки")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: { dismiss() }) {
-                        Image(systemName: "chevron.left")
+
+                    if isDurov {
+                        sectionHeader("Platform")
+                        settingsCard {
+                            SettingsRow(icon: "shield", title: "Admin Panel") {
+                                showAdminPanel = true
+                            }
+                        }
+                        .padding(.bottom, 20)
                     }
                 }
             }
-        }
-        .alert("Выйти", isPresented: $showSignOutConfirm) {
-            Button("Выйти", role: .destructive) {
-                authService.signOut()
+            .background(LuminaColor.backgroundMain.ignoresSafeArea())
+            .sheet(isPresented: $showAccount) {
+                AccountView()
+                    .presentationDetents([.large])
             }
-            Button("Отмена", role: .cancel) {}
+            .sheet(isPresented: $showAppearance) {
+                AppearanceView()
+            }
+            .sheet(isPresented: $showInteractions) {
+                InteractionsView()
+            }
+            .sheet(isPresented: $showAdminPanel) {
+                AdminPanelView()
+                    .presentationDetents([.large])
+            }
+        }
+        .alert("Sign Out", isPresented: $showSignOutConfirm) {
+            Button("Sign Out", role: .destructive) { authService.signOut() }
+            Button("Cancel", role: .cancel) {}
         } message: {
-            Text("Вы уверены, что хотите выйти из аккаунта?")
+            Text("Are you sure you want to sign out?")
         }
-        .sheet(isPresented: $showAdminPanel) {
-            AdminPanelView()
-                .presentationDetents([.large])
-        }
-    }
-
-    // MARK: - Секция профиля
-    private var profileSection: some View {
-        VStack(spacing: 12) {
-            AvatarView(
-                imageURL: authService.currentUser?.avatarURL,
-                name: authService.currentUser?.fullName ?? "Я",
-                size: 80
-            )
-
-            HStack(spacing: 4) {
-                Text(authService.currentUser?.fullName ?? "Пользователь")
-                    .font(LuminaFont.h3)
-                    .foregroundStyle(LuminaColor.textPrimary)
-
-                if authService.currentUser?.isVerified == true {
-                    VerifiedBadge(size: 18)
-                }
-            }
-
-            Text("@\(authService.currentUser?.username ?? "username")")
-                .font(LuminaFont.caption)
-                .foregroundStyle(.gray)
-        }
-        .padding(.top, 20)
-        .padding(.bottom, 16)
     }
 
     private var isDurov: Bool {
@@ -175,11 +174,11 @@ struct SettingsView: View {
 
     private func sectionHeader(_ title: String) -> some View {
         Text(title)
-            .font(LuminaFont.caption)
-            .foregroundStyle(.gray)
+            .font(.system(size: 13, weight: .semibold))
+            .foregroundStyle(.secondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
-            .padding(.top, 20)
+            .padding(.top, 18)
             .padding(.bottom, 6)
     }
 
@@ -187,7 +186,7 @@ struct SettingsView: View {
         VStack(spacing: 0) {
             content()
         }
-        .glassRounded(16)
+        .glassCard(radius: 20)
         .padding(.horizontal, 16)
     }
 }
