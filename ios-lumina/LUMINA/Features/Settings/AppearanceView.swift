@@ -143,7 +143,7 @@ struct AppearanceOptionCard: View {
             .frame(maxWidth: .infinity)
             .frame(height: 92)
             .background(
-                isSelected ? Color.white.opacity(0.9) : .ultraThinMaterial
+                isSelected ? AnyShapeStyle(Color.white.opacity(0.9)) : AnyShapeStyle(.ultraThinMaterial)
             )
             .clipShape(RoundedRectangle(cornerRadius: 16))
             .overlay(
